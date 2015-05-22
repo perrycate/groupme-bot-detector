@@ -3,9 +3,14 @@ import urllib.request
 import json
 
 GROUPME_API = "https://api.groupme.com/v3"
+user_token = input("Please enter your API Token: ")
+bot_id = input("Please enter an existing bot's Id: ")
+
+connection = get_push_connection()
+clientId = connection["clientId"]
 
 # create handshake with groupme server to recieve new messages
-def initiate_connection():
+def get_push_connection():
     # data required by groupme for initial handshake
     handshake_data = json.dumps([
                         {
@@ -19,6 +24,12 @@ def initiate_connection():
     request = urllib.request.Request("https://push.groupme.com/faye",
             data, {"Content-Type":"application/json"})
     response = urllib.request.urlopen(request)
+
+    # convert response to usable object format
+    response_string = response.readall().decode('utf-8')
+    response_object = json.loads(response_string)
+    # json.loads will return array with length 1, strip array
+    return response_object[0]
 
 # fetches resource at URL, converts JSON to useful Object
 def make_request(base_url, additional_url, token):
