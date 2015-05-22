@@ -1,0 +1,6 @@
++ Instead of being prompted, input relevant params through command line
++ Offer to create bot if no bot id provided
++ Support multiple bots at the same time
+    + would be used for detecting bots in multiple groups
++ Scan existing messages for bots
+
