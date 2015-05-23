@@ -17,7 +17,12 @@ def main():
     connection = get_push_connection()
     client_id = connection["clientId"]
 
-    subscribe_to_group(client_id, group_id, user_token)
+    response = subscribe_to_group(client_id, group_id, user_token)
+    if(not response["successful"]):
+        print("ERROR: attempt to connect to group with id " + group_id +
+                " was unsuccesful.")
+        print("Response body:")
+        print(response)
 
 # create handshake with groupme server to recieve new messages
 def get_push_connection():
