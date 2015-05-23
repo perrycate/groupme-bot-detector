@@ -6,3 +6,4 @@
 + Sepparate reusable methods into another file entirely for use as a library elsewhere?
     - Maybe wait until it is more complete
 ~ Different way of keeping track of current call # - current way just feels bad.
++ Should probably provide more graceful way of quitting than just crashing the application with a keyboardInterrupt.

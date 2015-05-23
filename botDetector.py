@@ -12,17 +12,25 @@ current_call_number = 1
 def main():
     user_token = input("Please enter your API Token: ")
     bot_id = input("Please enter an existing bot's Id: ")
-    group_id = input("Please enter a group Id: ")
+
+    # get user id
+    user = make_request(GROUPME_API, "/users/me", user_token)
+    user_id = user["id"]
 
     connection = get_push_connection()
     client_id = connection["clientId"]
 
-    response = subscribe_to_group(client_id, group_id, user_token)
+    response = subscribe_to_user_channel(client_id, user_id, user_token)
     if(not response["successful"]):
         print("ERROR: attempt to connect to group with id " + group_id +
                 " was unsuccesful.")
         print("Response body:")
         print(response)
+
+    while(True):
+        print("")
+        print(poll_for_data(client_id))
+
 
 # create handshake with groupme server to recieve new messages
 def get_push_connection():
@@ -44,27 +52,42 @@ def get_push_connection():
     return response[0]
 
 
-def subscribe_to_group(client, group, token):
+def subscribe_to_user_channel(client, user, token):
         global current_call_number
 
         data = [
+                  {
+                    "channel":"/meta/subscribe",
+                    "clientId":client,
+                    "subscription":"/user/" + user,
+                    "id":current_call_number,
+                    "ext":
                       {
-                        "channel":"/meta/subscribe",
-                        "clientId":client,
-                        "subscription":"/group/" + group,
-                        "id":current_call_number,
-                        "ext":
-                          {
-                            "access_token":token,
-                            "timestamp":time.time()
-                          }
+                        "access_token":token,
+                        "timestamp":time.time()
                       }
-                    ]
+                  }
+               ]
 
         response = make_request_sending_json(PUSH_SERVER_URL, data)
         current_call_number += 1
         return response[0]
 
+def poll_for_data(client):
+    global current_call_number
+
+    data = [
+              {
+                "channel":"/meta/connect",
+                "clientId":client,
+                "connectionType":"long-polling",
+                "id":current_call_number
+              }
+           ]
+
+    response = make_request_sending_json(PUSH_SERVER_URL, data)
+    current_call_number += 1
+    return response
 
 # fetches resource at URL, converts JSON response to useful Object
 def make_request(base_url, additional_url, token):
