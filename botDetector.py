@@ -27,9 +27,7 @@ def main():
         print("Response body:")
         print(response)
 
-    while(True):
-        print("")
-        print(poll_for_data(client_id))
+    infinite_process_loop(client_id, False)
 
 
 # create handshake with groupme server to recieve new messages
@@ -72,6 +70,22 @@ def subscribe_to_user_channel(client, user, token):
         response = make_request_sending_json(PUSH_SERVER_URL, data)
         current_call_number += 1
         return response[0]
+
+
+def infinite_process_loop(client_id, keep_looping):
+    try:
+        poll_for_data(client_id)
+    # make sure these path through, only way to kill process...
+    except KeyboardInterrupt:
+        keep_looping = False
+        pass
+    except: # Anything might happen from returned data that causes exception
+        # Catch all errors because this process must keep going at all costs.
+        print("ERROR: " + sys.exec_info()[0])
+    finally:
+        if(keep_looping):
+            infinite_poll_loop(client_id)
+
 
 def poll_for_data(client):
     global current_call_number
