@@ -3,4 +3,6 @@
 + Support multiple bots at the same time
     + would be used for detecting bots in multiple groups
 + Scan existing messages for bots
-
++ Sepparate reusable methods into another file entirely for use as a library elsewhere?
+    - Maybe wait until it is more complete
+~ Different way of keeping track of current call # - current way just feels bad.
