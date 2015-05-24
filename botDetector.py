@@ -14,20 +14,28 @@ def main():
     bot_id = input("Please enter an existing bot's Id: ")
 
     # get user id
+    print("Fetching User Id...", end="")
     user = make_request(GROUPME_API, "/users/me", user_token)
     user_id = user["id"]
+    print("OK")
 
+    print("Establishing connection to GroupMe push servers...", end="")
     connection = get_push_connection()
     client_id = connection["clientId"]
+    print("OK")
 
+    print("Subscribing to user channel...", end="")
     response = subscribe_to_user_channel(client_id, user_id, user_token)
     if(not response["successful"]):
+        print("")
         print("ERROR: attempt to connect to group with id " + group_id +
                 " was unsuccesful.")
         print("Response body:")
         print(response)
 
-    infinite_process_loop(client_id, False)
+    print("OK")
+
+    infinite_process_loop(client_id, True)
 
 
 # create handshake with groupme server to recieve new messages
@@ -74,17 +82,31 @@ def subscribe_to_user_channel(client, user, token):
 
 def infinite_process_loop(client_id, keep_looping):
     try:
-        poll_for_data(client_id)
+        print("Waiting for data...")
+        data = poll_for_data(client_id)
+        print("Data recieved, ", end="")
+
+        # first item in data array is just status stuff we can ignore.
+        data = data[1]["data"]
+
+        # check if a new message was added
+        if(data["type"] == "line.create"):
+            # was the new message a bot?
+            user_type = data["subject"]["sender_type"]
+            print(user_type)
+            if(user_type == "bot"):
+                print("BOT DETECTED!")
+
+        else:
+            print("Not new line, was a " + data["type"])
+
     # make sure these path through, only way to kill process...
     except KeyboardInterrupt:
         keep_looping = False
         pass
-    except: # Anything might happen from returned data that causes exception
-        # Catch all errors because this process must keep going at all costs.
-        print("ERROR: " + sys.exec_info()[0])
     finally:
         if(keep_looping):
-            infinite_poll_loop(client_id)
+            infinite_process_loop(client_id, keep_looping)
 
 
 def poll_for_data(client):
