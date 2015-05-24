@@ -7,3 +7,7 @@
 + Should probably provide more graceful way of quitting than just crashing the application with a keyboardInterrupt.
 + Better logging
     + Should log non-error stuff like "liking this message", "user posted", something like that.
++ Better request methods
+    ~ Inconsistent as is
+    ~ Should explicitly distinguish between POST and GET
+    ~ Duplicated code

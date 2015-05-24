@@ -81,32 +81,31 @@ def subscribe_to_user_channel(client, user, token):
 
 
 def infinite_process_loop(client_id, keep_looping):
-    try:
-        print("Waiting for data...")
-        data = poll_for_data(client_id)
-        print("Data recieved, ", end="")
+    while(keep_looping):
+        try:
+            print("Waiting for data...")
+            data = poll_for_data(client_id)
+            print("Data recieved, ", end="")
 
-        # first item in data array is just status stuff we can ignore.
-        data = data[1]["data"]
+            # first item in data array is just status stuff we can ignore.
+            data = data[1]["data"]
 
-        # check if a new message was added
-        if(data["type"] == "line.create"):
-            # was the new message a bot?
-            user_type = data["subject"]["sender_type"]
-            print(user_type)
-            if(user_type == "bot"):
-                print("BOT DETECTED!")
+            # check if a new message was added
+            if(data["type"] == "line.create"):
+                # was the new message a bot?
+                user_type = data["subject"]["sender_type"]
+                print(user_type)
+                if(user_type == "bot"):
+                    print("BOT DETECTED!")
 
-        else:
-            print("Not new line, was a " + data["type"])
+            else:
+                print("Not new line, was a " + data["type"])
 
-    # make sure these path through, only way to kill process...
-    except KeyboardInterrupt:
-        keep_looping = False
-        pass
-    finally:
-        if(keep_looping):
-            infinite_process_loop(client_id, keep_looping)
+        # make sure these path through, only way to kill process...
+        except KeyboardInterrupt:
+            keep_looping = False
+            pass
+
 
 
 def poll_for_data(client):
